@@ -1,36 +1,53 @@
 package hiber.dao;
 
+import hiber.model.Car;
 import hiber.model.User;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
 public class UserDaoImp implements UserDao {
 
-   @Autowired
-   private SessionFactory sessionFactory;
+   @PersistenceContext
+   private EntityManager entityManager;
 
    @Override
-   public void add(User user) {
-      sessionFactory.getCurrentSession().save(user);
+   public void addUser(User user) {
+      entityManager.persist(user);
+   }
+
+   @Override
+   public void updateUser(User user) {
+      entityManager.merge(user);
    }
 
    @Override
    public List<User> listUsers() {
-      return sessionFactory.getCurrentSession()
-              .createQuery("from User u left join fetch u.car", User.class)
-              .getResultList();
+      return entityManager.createQuery("from User", User.class).getResultList();
+   }
+
+
+   @Override
+   public User findUserByCar(String model, int series) {
+      TypedQuery<User> query = entityManager.createQuery(
+              "from User u where u.car.model = :model and u.car.series = :series", User.class);
+      query.setParameter("model", model);
+      query.setParameter("series", series);
+      List<User> result = query.getResultList();
+      return result.isEmpty() ? null : result.get(0);
    }
 
    @Override
-   public User findUserByCarModelAndSeries(String model, int series) {
-      return sessionFactory.getCurrentSession()
-              .createQuery("from User u left join fetch u.car where u.car.model = :model and u.car.series = :series", User.class)
-              .setParameter("model", model)
-              .setParameter("series", series)
-              .uniqueResult();
+   public void addCar(Car car) {
+      entityManager.persist(car);
+   }
+
+   @Override
+   public List<Car> listCars() {
+      return entityManager.createQuery("from Car", Car.class).getResultList();
    }
 }

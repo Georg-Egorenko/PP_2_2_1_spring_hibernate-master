@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -32,15 +33,16 @@ public class User {
 
    public User() {}
 
-   public User(String firstName, String lastName, String email, Car car) {
+   public User(String firstName, String lastName, String email) {
       this.firstName = firstName;
       this.lastName = lastName;
       this.email = email;
-      this.car = car;
-      if (car != null) {
-          car.setUser(this);
-      }
    }
+   public User(String firstName, String lastName, String email, Car car) {
+      this(firstName, lastName, email);
+      this.car = car;
+   }
+
 
    public Long getId() { return id; }
    public String getFirstName() { return firstName; }
@@ -57,5 +59,17 @@ public class User {
               ", lastName='" + lastName + '\'' +
               ", email='" + email + '\'' +
               '}';
+   }
+
+   @Override
+   public boolean equals(Object o) {
+      if (o == null || getClass() != o.getClass()) return false;
+      User user = (User) o;
+      return Objects.equals(getId(), user.getId()) && Objects.equals(getFirstName(), user.getFirstName()) && Objects.equals(getLastName(), user.getLastName()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getCar(), user.getCar());
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(getId(), getFirstName(), getLastName(), getEmail(), getCar());
    }
 }
