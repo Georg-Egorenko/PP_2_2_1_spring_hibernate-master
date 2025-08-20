@@ -41,13 +41,4 @@ public class UserDaoImp implements UserDao {
       return result.isEmpty() ? null : result.get(0);
    }
 
-   @Override
-   public void addCar(Car car) {
-      entityManager.persist(car);
-   }
-
-   @Override
-   public List<Car> listCars() {
-      return entityManager.createQuery("from Car", Car.class).getResultList();
-   }
 }
